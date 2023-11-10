@@ -1,18 +1,64 @@
-from src.loading_lambda.get_column_names_util import (
-    get_column_names,
-    get_connection,
-    get_credentials,
-)
+from src.loading_lambda.get_column_names_util import get_column_names
 import logging
+import subprocess
+import os
+import pytest
+import time
+import pg8000
 
 logger = logging.getLogger("MyLogger")
 logger.setLevel(logging.INFO)
 
 
-def test_real_dim_counterparty_columns():
-    secret_name = "totesys-warehouse"
-    credentials = get_credentials(secret_name)
-    conn = get_connection(credentials)
+@pytest.fixture(scope="module")
+def pg_container_fixture():
+    test_dir = os.path.dirname(os.path.abspath(__file__))
+    compose_path = os.path.join(test_dir, "docker-compose-dw.yaml")
+    subprocess.run(
+        ["docker", "compose", "-f", compose_path, "up", "-d"], check=False
+    )  # noqa: E501
+    try:
+        max_attempts = 5
+        for _ in range(max_attempts):
+            result = subprocess.run(
+                [
+                    "docker",
+                    "exec",
+                    "postgres-dw",
+                    "pg_isready",
+                    "-h",
+                    "localhost",
+                    "-U",
+                    "testdb",
+                ],
+                stdout=subprocess.PIPE,
+                check=False,
+            )
+            if result.returncode == 0:
+                break
+            time.sleep(2)
+        else:
+            raise TimeoutError(
+                """PostgreSQL container is not responding,
+                cancelling fixture setup."""
+            )
+        conn = pg8000.connect(
+            user="testuser",
+            password="testpass",
+            host="localhost",
+            port=5433,
+            database="testdb",
+        )
+        yield conn
+    finally:
+        conn.close()
+        subprocess.run(
+            ["docker", "compose", "-f", compose_path, "down"], check=False
+        )  # noqa: E501
+
+
+def test_real_dim_counterparty_columns(pg_container_fixture):
+    conn = pg_container_fixture
     result = get_column_names(conn, "dim_counterparty")
     assert result == (
         "counterparty_id",
@@ -27,26 +73,14 @@ def test_real_dim_counterparty_columns():
     )  # noqa E501
 
 
-def test_real_dim_currency_columns():
-    secret_name = "totesys-warehouse"
-    credentials = get_credentials(secret_name)
-    conn = get_connection(credentials)
+def test_real_dim_currency_columns(pg_container_fixture):
+    conn = pg_container_fixture
     result = get_column_names(conn, "dim_currency")
     assert result == ("currency_id", "currency_code", "currency_name")
 
 
-# def test_real_dim_date_columns():
-#     secret_name = "totesys-warehouse"
-#     credentials = get_credentials(secret_name)
-#     conn = get_connection(credentials)
-#     result = get_column_names(conn, 'dim_date')
-#     assert result == "('quarter', 'year', 'month', 'day', 'day_of_week', 'date_id', 'month_name', 'day_name')"  # noqa E501
-
-
-def test_real_dim_design_columns():
-    secret_name = "totesys-warehouse"
-    credentials = get_credentials(secret_name)
-    conn = get_connection(credentials)
+def test_real_dim_design_columns(pg_container_fixture):
+    conn = pg_container_fixture
     result = get_column_names(conn, "dim_design")
     assert result == (
         "design_id",
@@ -56,10 +90,8 @@ def test_real_dim_design_columns():
     )  # noqa E501
 
 
-def test_real_dim_location_columns():
-    secret_name = "totesys-warehouse"
-    credentials = get_credentials(secret_name)
-    conn = get_connection(credentials)
+def test_real_dim_location_columns(pg_container_fixture):
+    conn = pg_container_fixture
     result = get_column_names(conn, "dim_location")
     assert result == (
         "location_id",
@@ -73,10 +105,8 @@ def test_real_dim_location_columns():
     )  # noqa E501
 
 
-def test_real_dim_staff_columns():
-    secret_name = "totesys-warehouse"
-    credentials = get_credentials(secret_name)
-    conn = get_connection(credentials)
+def test_real_dim_staff_columns(pg_container_fixture):
+    conn = pg_container_fixture
     result = get_column_names(conn, "dim_staff")
     assert result == (
         "staff_id",
@@ -88,10 +118,8 @@ def test_real_dim_staff_columns():
     )  # noqa E501
 
 
-def test_real_fact_sales_order_columns():
-    secret_name = "totesys-warehouse"
-    credentials = get_credentials(secret_name)
-    conn = get_connection(credentials)
+def test_real_fact_sales_order_columns(pg_container_fixture):
+    conn = pg_container_fixture
     result = get_column_names(conn, "fact_sales_order")
     assert result == (
         "sales_record_id",
@@ -112,10 +140,10 @@ def test_real_fact_sales_order_columns():
     )  # noqa E501
 
 
-def test_real_dim_currency_columns_incorrect_table_name(caplog):
+def test_real_dim_currency_columns_incorrect_table_name(
+    pg_container_fixture, caplog
+):  # noqa E501
     with caplog.at_level(logging.INFO):
-        secret_name = "totesys-warehouse"
-        credentials = get_credentials(secret_name)
-        conn = get_connection(credentials)
+        conn = pg_container_fixture
         get_column_names(conn, "wrong_table_name")
         assert "Incorrect table name has been provided." in caplog.text
