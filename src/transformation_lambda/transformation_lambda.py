@@ -32,6 +32,16 @@ def lambda_handler(event, context):
     Exception
         If there is an error during the processing of the event.
     """
+
+    # read "latest_json_data.txt" for a list of jsons
+    # loop through the jsons:
+    # - replace get_table_name with just extracting it from the s3 key/path
+    # - extract json content (modify and reuse read_s3_json)
+    # - decide on formatter
+    # - modify write_file_to_s3 to return the key
+    # - add the key to a list latest_parquet_data
+    # - end of loop: write "latest_parquet_data.txt" to transformed bucket.
+
     bucket_name = "nc-de-project-transformed-data-20231102173127140100000001"
 
     table_name = get_table_name(event)
@@ -259,7 +269,7 @@ def write_file_to_s3(bucket_name, table_name, parquet_buffer):
     day = date.day
     time = date.strftime("%H%M%S")
 
-    file_name = f"{table_name}/{year}/{month}/{day}/data-{time}.parquet"
+    file_name = f"{table_name}/{year}/{month}/{day}/{table_name}-{time}.parquet"
 
     try:
         response = client.put_object(

@@ -8,12 +8,12 @@ terraform {
 
   backend "s3" {
     bucket = "nc-de-project-backend-bucket"
-    key    = "production/terraform.tfstate" 
+    key    = "terraform.tfstate" 
     region = "eu-west-2"
   }
 }
 
 provider "aws" {
   region  = "eu-west-2"
-  # profile = "nc-admin"
+  profile = "pav"
 }
