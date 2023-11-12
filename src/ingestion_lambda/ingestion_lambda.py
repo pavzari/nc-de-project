@@ -321,9 +321,13 @@ def write_file(bucket_name, json_data, timestamp=dt(2020, 1, 1, 0, 0, 0)):
         if not isinstance(json_data, dict):
             raise Exception("Updated data type invalid. Dict expected.")
 
+        # aggregate all newly created json files
+        # and their keys on S3 to a list
+        latest_json_data_index = []
+
         for table in json_data:
             if table != "all_addresses":
-                file_name = f"{table}/{year}/{month}/{day}/data-{time}.json"
+                file_name = f"{table}/{year}/{month}/{day}/{table}-{time}.json"
 
                 if table == "staff":
                     response = client.put_object(
@@ -338,6 +342,7 @@ def write_file(bucket_name, json_data, timestamp=dt(2020, 1, 1, 0, 0, 0)):
                     )  # noqa E501
                     if response["ResponseMetadata"]["HTTPStatusCode"] == 200:
                         logger.info(f"Success. File {file_name} saved.")
+                        latest_json_data_index.append(file_name)
 
                 elif table == "counterparty":
                     response = client.put_object(
@@ -352,6 +357,7 @@ def write_file(bucket_name, json_data, timestamp=dt(2020, 1, 1, 0, 0, 0)):
                     )  # noqa E501
                     if response["ResponseMetadata"]["HTTPStatusCode"] == 200:
                         logger.info(f"Success. File {file_name} saved.")
+                        latest_json_data_index.append(file_name)
 
                 else:
                     response = client.put_object(
@@ -361,6 +367,7 @@ def write_file(bucket_name, json_data, timestamp=dt(2020, 1, 1, 0, 0, 0)):
                     )  # noqa E501
                     if response["ResponseMetadata"]["HTTPStatusCode"] == 200:
                         logger.info(f"Success. File {file_name} saved.")
+                        latest_json_data_index.append(file_name)
 
         datefileresponse = client.put_object(
             Body=last_successful_timestamp,
@@ -369,6 +376,17 @@ def write_file(bucket_name, json_data, timestamp=dt(2020, 1, 1, 0, 0, 0)):
         )
         if datefileresponse["ResponseMetadata"]["HTTPStatusCode"] == 200:
             logger.info("Success. last_update.txt overwritten")
+
+        # write a list of new json data to a file, save to ingestion bucket.
+        json_data_string = "\n".join(latest_json_data_index)
+        latest_json_response = client.put_object(
+            Body=json_data_string,
+            Bucket=bucket_name,
+            Key="latest_json_data.txt",
+        )
+        if latest_json_response["ResponseMetadata"]["HTTPStatusCode"] == 200:
+            logger.info("Latest JSON data file index created.")
+
     except KeyError as e:
         logger.error(f" {e.response['Error']['Message']}")
     except ClientError as e:
