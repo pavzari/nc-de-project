@@ -24,7 +24,7 @@ class TestWriteFile:
     """tests for write file util function"""
 
     def test_puts_json_file_and_updated_file_in_s3_bucket(self):
-        testJSON = {"name": "John", "age": 30, "city": "New York"}
+        testJSON = {"test": [{"name": "John"}, {"age": 30}, {"city": "New York"}]}
         timestamp = dt.now()
         s3 = boto3.client("s3")
         s3.create_bucket(
@@ -34,11 +34,11 @@ class TestWriteFile:
         write_file("TestBucket", testJSON, timestamp)
 
         response = s3.list_objects(Bucket="TestBucket")
-        assert len(response["Contents"]) == 4
+        assert len(response["Contents"]) == 3
 
     @time_machine.travel(dt(2020, 1, 1, 17, 30, 19))
     def test_key_is_correct(self):
-        testJSON = {"name": "John", "age": 30, "city": "New York"}
+        testJSON = {"test": [{"name": "John"}, {"age": 30}, {"city": "New York"}]}
         timestamp = dt.now()
         s3 = boto3.client("s3")
         s3.create_bucket(
@@ -49,13 +49,13 @@ class TestWriteFile:
 
         response = s3.list_objects(Bucket="TestBucket")
         assert (
-            response["Contents"][0]["Key"] == "age/2020/1/1/data-173019.json"
+            response["Contents"][2]["Key"] == "test/2020/1/1/test-173019.json"
         )  # noqa E501
 
     @time_machine.travel(dt(2020, 1, 1, 17, 30, 19))
     def test_successful_log_output_is_correct(self, caplog):
         with caplog.at_level(logging.INFO):
-            testJSON = {"name": "John", "age": 30, "city": "New York"}
+            testJSON = {"test": [{"name": "John"}, {"age": 30}, {"city": "New York"}]}
             timestamp = dt.now()
             s3 = boto3.client("s3")
             s3.create_bucket(
@@ -65,7 +65,7 @@ class TestWriteFile:
             write_file("TestBucket", testJSON, timestamp)
 
             assert (
-                "Success. File age/2020/1/1/data-173019.json saved."
+                "Success. File test/2020/1/1/test-173019.json saved."
                 in caplog.text  # noqa: E501
             )  # noqa: E501
 
