@@ -195,7 +195,7 @@ def get_last_upload(bucket_name):
 
 def get_data(conn, last_upload):
     """
-    Gets data from the connected database from last_upload.
+    Gets data from the connected database since last_upload.
 
     Parameters
     ----------
