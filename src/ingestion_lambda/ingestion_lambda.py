@@ -32,11 +32,10 @@ def lambda_handler(event, context):
         If there is an error during the processing of the event.
     """
     invocation_time = dt.now()
-    bucket_name = event['data_bucket_name']
-    secret_name = "totesys-production"
+    bucket_name = event["data_bucket_name"]
 
     try:
-        credentials = get_credentials(secret_name)
+        credentials = get_credentials("production")
 
         connection = get_connection(credentials)
 

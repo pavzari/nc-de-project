@@ -1,4 +1,4 @@
-from src.loading_lambda.get_column_names_util import get_column_names
+from src.loading_lambda.loading_lambda import get_column_names
 import logging
 import subprocess
 import os

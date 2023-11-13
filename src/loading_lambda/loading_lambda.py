@@ -42,7 +42,7 @@ def lambda_handler(event, context):
         key = event["Records"][0]["s3"]["object"]["key"]
         table_name = key.split("/")[0]
 
-        credentials = get_credentials("totesys-warehouse")
+        credentials = get_credentials("warehouse")
         conn = get_connection(credentials)
 
         data = get_parquet(bucket_name, key)
@@ -104,10 +104,6 @@ def lambda_handler(event, context):
 
     except DatabaseError as db:
         logger.error(f"pg8000 - an error has occurred: {db.args[0]['M']}")
-        raise db
-    except InterfaceError as ie:
-        logger.error(f'pg8000 - an error has occurred: \n"{ie}"')
-        raise ie
     except Exception as exc:
         logger.error(exc)
 
@@ -273,12 +269,11 @@ def get_column_names(conn, table_name):
 
         result = tuple([name[0] for name in columns])
         if len(result) <= 2:
-            logger.error("Incorrect table name has been provided.")
-        elif len(result) > 2:
-            logger.info(f"Column names returned are: {result}")
-            return result
-    except ClientError as e:
-        logger.error(f" {e.response['Error']['Message']}")
+            raise DatabaseError("Incorrect table name has been provided.")
+        logger.info(f"Column names returned are: {result}")
+        return result
+    except (DatabaseError, InterfaceError) as e:
+        logger.error(f"pg8000 - an error has occurred: {e}")
     except Exception as exc:
         logger.error(exc)
         raise exc
