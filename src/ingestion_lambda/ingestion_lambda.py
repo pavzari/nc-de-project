@@ -35,7 +35,7 @@ def lambda_handler(event, context):
     bucket_name = (
         "nc-de-project-ingested-data-bucket-20231102173127149000000003"  # noqa E501
     )
-    secret_name = "totesys-production"
+    secret_name = "production"
 
     try:
         credentials = get_credentials(secret_name)

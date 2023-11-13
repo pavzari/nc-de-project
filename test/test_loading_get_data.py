@@ -1,4 +1,4 @@
-from src.loading_lambda.get_data_util import get_parquet
+from src.loading_lambda.loading_lambda import get_parquet
 import logging
 from moto import mock_s3
 import boto3
@@ -163,10 +163,10 @@ class TestGetParquet:
                 (
                     17,
                     "Irving",
-                    "O'Keefe",
+                    'O"Keefe',
                     "Production",
                     "Leeds",
-                    "irving.o'keefe@terrifictotes.com",
+                    'irving.o"keefe@terrifictotes.com',
                 ),
                 (
                     18,
