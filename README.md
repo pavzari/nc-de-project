@@ -61,7 +61,7 @@ The TotalTotes Data Warehouse Pipeline is a robust and scalable solution designe
 
 #### Workflow
 
-![pipeline-diagram](./docs/infrastructure-diagram.svg)
+![pipeline-diagram](./docs/aws-infra-diagram.svg)
 
 1. Extraction: The extraction process is scheduled through EventBridge at 10-minute intervals, ensuring a consistent and timely refresh of data from the transactional database.
 
