@@ -1,0 +1,13 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:alpine
+    container_name: postgres-prod
+    environment:
+      POSTGRES_DB: testdb
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpass
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./mock_db/prod-schema.sql:/docker-entrypoint-initdb.d/prod-schema.sql

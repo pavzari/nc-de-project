@@ -21,7 +21,6 @@ resource "aws_s3_bucket_notification" "ingestion_bucket_notification" {
   depends_on = [aws_lambda_permission.tranformation_lambda_invoke_permission]
 }
 
-
 resource "aws_lambda_permission" "tranformation_lambda_invoke_permission" {
   statement_id  = "AllowS3Invocation"
   action        = "lambda:InvokeFunction"
@@ -32,7 +31,7 @@ resource "aws_lambda_permission" "tranformation_lambda_invoke_permission" {
 
 resource "aws_s3_bucket_notification" "tranformed_bucket_notification" {
   bucket = aws_s3_bucket.transformed_data_bucket.id
- 
+
   lambda_function {
     lambda_function_arn = aws_lambda_function.warehouse_loading_lambda.arn
     events              = ["s3:ObjectCreated:*"]

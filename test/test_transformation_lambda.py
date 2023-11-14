@@ -19,7 +19,7 @@ def aws_credentials():
     os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"
     os.environ["AWS_DEFAULT_REGION"] = "eu-west-2"
 
-
+@patch.dict(os.environ,{"TRANS_BUCKET":"mocked_bucket_name"})# noqa E501
 @mock_s3
 class TestTransformationLambda:
     """tests for transformation lambda"""
@@ -49,14 +49,14 @@ class TestTransformationLambda:
     def test_creates_design_parquet_file(self, read_s3_json, get_table_name):
         s3 = boto3.client("s3")
         s3.create_bucket(
-            Bucket="nc-de-project-transformed-data-20231102173127140100000001",
+            Bucket="mocked_bucket_name",
             CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
         )  # noqa E501
 
         lambda_handler("event", "context")
 
         response = s3.list_objects(
-            Bucket="nc-de-project-transformed-data-20231102173127140100000001"
+            Bucket="mocked_bucket_name"
         )  # noqa E501
         assert (
             response["Contents"][0]["Key"]
@@ -96,14 +96,14 @@ class TestTransformationLambda:
     ):
         s3 = boto3.client("s3")
         s3.create_bucket(
-            Bucket="nc-de-project-transformed-data-20231102173127140100000001",
+            Bucket="mocked_bucket_name",
             CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
         )
 
         lambda_handler("event", "context")
 
         response = s3.list_objects(
-            Bucket="nc-de-project-transformed-data-20231102173127140100000001"
+            Bucket="mocked_bucket_name"
         )
         assert (
             response["Contents"][0]["Key"]
@@ -159,14 +159,14 @@ class TestTransformationLambda:
     def test_creates_dim_staff_parquet(self, read_s3_json, get_table_name):
         s3 = boto3.client("s3")
         s3.create_bucket(
-            Bucket="nc-de-project-transformed-data-20231102173127140100000001",
+            Bucket="mocked_bucket_name",
             CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
         )
 
         lambda_handler("event", "context")
 
         response = s3.list_objects(
-            Bucket="nc-de-project-transformed-data-20231102173127140100000001"
+            Bucket="mocked_bucket_name"
         )
         assert (
             response["Contents"][0]["Key"]
@@ -198,14 +198,14 @@ class TestTransformationLambda:
     def test_ignores_department_json(self, read_s3_json, get_table_name):
         s3 = boto3.client("s3")
         s3.create_bucket(
-            Bucket="nc-de-project-transformed-data-20231102173127140100000001",
+            Bucket="mocked_bucket_name",
             CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
         )
 
         lambda_handler("event", "context")
 
         response = s3.list_objects(
-            Bucket="nc-de-project-transformed-data-20231102173127140100000001"
+            Bucket="mocked_bucket_name"
         )
 
         assert "Contents" not in response.keys()

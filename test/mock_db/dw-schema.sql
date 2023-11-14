@@ -1,5 +1,5 @@
 
--- PostgreSQL Totesys data warehouse sql schema
+-- PostgreSQL data warehouse sql schema
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -134,7 +134,7 @@ CREATE TABLE fact_purchase_order (
 
 
 CREATE TABLE fact_sales_order (
-    sales_record_id integer NOT NULL,
+    sales_record_id SERIAL,
     sales_order_id integer NOT NULL,
     created_date date NOT NULL,
     created_time time without time zone NOT NULL,

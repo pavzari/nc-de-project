@@ -1,6 +1,6 @@
 resource "aws_lambda_function" "ingestion_lambda" {
   function_name    = var.ingestion_lambda
-  handler          = "ingestion_lambda.lambda_handler" 
+  handler          = "ingestion_lambda.lambda_handler"
   runtime          = "python3.11"
   timeout          = 900
   role             = aws_iam_role.role_for_ingestion_lambda.arn
