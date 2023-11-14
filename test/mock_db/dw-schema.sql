@@ -1,5 +1,5 @@
 
--- PostgreSQL Totesys data warehouse sql schema
+-- PostgreSQL data warehouse sql schema
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;

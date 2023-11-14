@@ -12,6 +12,17 @@ logger.setLevel(logging.INFO)
 
 @pytest.fixture(scope="module")
 def pg_container_fixture():
+    """
+    Fixture for setting up a PostgreSQL Docker container.
+
+    Launches a PostgreSQL container using the specified docker compose file
+    (test/docker-compose-dw.yaml). Checks the container's readiness by attempting connections,
+    and if successful, database inside the container is set up with a schema (test/mock_db/dw-shema.sql) and a
+    pg8000 database connection object is returned for use during the testing.
+    After the test, the fixture tears down the container to clean up resources.
+
+    If the container isn't ready within a set number of attempts, a TimeoutError is raised.
+    """  # noqa: E501
     test_dir = os.path.dirname(os.path.abspath(__file__))
     compose_path = os.path.join(test_dir, "docker-compose-dw.yaml")
     subprocess.run(

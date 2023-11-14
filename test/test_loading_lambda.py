@@ -10,10 +10,6 @@ import boto3
 import pytest
 import os
 
-# from moto import mock_s3
-# import time_machine
-# from datetime import datetime as dt
-
 logger = logging.getLogger("TestLogger")
 logger.setLevel(logging.INFO)
 
@@ -28,6 +24,15 @@ def aws_credentials():
 
 @pytest.fixture(scope="module")
 def pg_container_fixture():
+    """
+    Fixture launches a PostgreSQL container using the specified docker compose file
+    (test/docker-compose-dw.yaml). Checks the container's readiness by attempting connections,
+    and if successful, database inside the container is set up with a schema (test/mock_db/dw-shema.sql).
+    After the test, the fixture tears down the container to clean
+    up resources.
+
+    If the container isn't ready within a set number of attempts, a TimeoutError is raised.
+    """  # noqa: E501
     test_dir = os.path.dirname(os.path.abspath(__file__))
     compose_path = os.path.join(test_dir, "docker-compose-dw.yaml")
     subprocess.run(
@@ -77,6 +82,7 @@ def s3_fixture():
         yield s3_client, bucket_name
 
 
+# dim_staff
 @patch(
     "src.loading_lambda.loading_lambda.get_credentials",
     return_value={
@@ -133,7 +139,7 @@ def test_loading_lambda_dim_staff(
     )
 
 
-# "dim_date"
+# dim_date
 @patch(
     "src.loading_lambda.loading_lambda.get_credentials",
     return_value={
@@ -191,7 +197,7 @@ def test_loading_lambda_dim_date(
     ]
 
 
-# "fact_sales_order"
+# primary key constraint error when inserting into fact_sales_order
 @patch(
     "src.loading_lambda.loading_lambda.get_credentials",
     return_value={
@@ -234,9 +240,7 @@ def test_loading_lambda_fact_sales_order(
         )
 
 
-# wrong-credentials
-
-
+# wrong credentials
 @patch(
     "src.loading_lambda.loading_lambda.get_credentials",
     return_value={

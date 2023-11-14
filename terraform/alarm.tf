@@ -24,7 +24,7 @@ resource "aws_cloudwatch_log_metric_filter" "error_metric_filter_ingest" {
   name           = "ingestion-log-error-filter"
   pattern        = "ERROR"
   log_group_name = "/aws/lambda/${aws_lambda_function.ingestion_lambda.function_name}"
-  
+
   metric_transformation {
     name      = "ingestion-error-log-count"
     namespace = "IngestionMetrics"
@@ -100,7 +100,7 @@ resource "aws_cloudwatch_log_metric_filter" "error_metric_filter_transform" {
   name           = "transformation-log-error-filter"
   pattern        = "ERROR"
   log_group_name = "/aws/lambda/${aws_lambda_function.transformation_lambda.function_name}"
-  
+
   metric_transformation {
     name      = "transformation-error-log-count"
     namespace = "TransformMetrics"
@@ -118,7 +118,6 @@ resource "aws_cloudwatch_log_metric_filter" "runtime_error_transform" {
     value     = "1"
   }
 }
-
 
 resource "aws_cloudwatch_metric_alarm" "error_alert_transform" {
   alarm_name          = "transformation-error"
@@ -176,7 +175,7 @@ resource "aws_cloudwatch_log_metric_filter" "error_metric_filter_loading" {
   name           = "loading-log-error-filter"
   pattern        = "ERROR"
   log_group_name = "/aws/lambda/${aws_lambda_function.warehouse_loading_lambda.function_name}"
-  
+
   metric_transformation {
     name      = "loading-error-log-count"
     namespace = "LoadingMetrics"
