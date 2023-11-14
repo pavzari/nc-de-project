@@ -42,6 +42,31 @@ def lambda_handler(event, context):
     # - add the key to a list latest_parquet_data
     # - end of loop: write "latest_parquet_data.txt" to transformed bucket.
 
+    # table_data_formatters = {
+    #     "address": ("dim_location", format_dim_location),
+    #     "staff": ("dim_staff", format_dim_staff),
+    #     "design": ("dim_design", format_dim_design),
+    #     "currency": ("dim_currency", format_dim_currency),
+    #     "counterparty": ("dim_counterparty", format_dim_counterparty),
+    #     "sales_order": [("dim_date", format_dim_date), ("fact_sales_order", format_fact_sales_order)],
+    # }
+
+    # if table_name in table_data_formatters:
+    #     mappings = table_data_formatters[table_name]
+
+    #     if table_name == "sales_order":
+    #         for olap_table, formatter in mappings:
+    #             transformed_data = formatter(data)
+    #             parquet_buffer = create_parquet_buffer(transformed_data)
+    #             write_file_to_s3(bucket_name, olap_table, parquet_buffer)
+    #     else:
+    #         olap_table, formatter = mappings
+    #         transformed_data = formatter(data)
+    #         parquet_buffer = create_parquet_buffer(transformed_data)
+    #         write_file_to_s3(bucket_name, olap_table, parquet_buffer)
+    # else:
+    #     logger.warning("Unrecognized JSON data received.")
+
     bucket_name = "nc-de-project-transformed-data-20231102173127140100000001"
 
     table_name = get_table_name(event)
