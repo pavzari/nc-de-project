@@ -32,8 +32,66 @@ Secrets:
 This pipeline relies on AWS Secrets Manager and GitHub secrets to secure credentials. No setup is required if working within this repository and project. For other databases or projects, set up secrets with appropriate credentials.
 
 You are now set up and ready to use this pipeline.
+
+Project Description:
+
+Overview
+
+The TotalTotes Data Warehouse Pipeline is a robust and scalable solution designed to seamlessly transform the company's transactional database into a powerful analytics data warehouse. Leveraging the capabilities of AWS services, the pipeline ensures efficient extraction, transformation, and loading (ETL) processes to convert data from an Online Transaction Processing (OLTP) to an Online Analytical Processing (OLAP) format.
+
+Architecture
+
+AWS Services
+
+    Amazon S3: Serves as the central storage for both raw and processed data, providing a scalable and durable solution for storing large datasets.
+
+    AWS Lambda: Handles the ETL processes, with functions triggered by event-based actions. Extraction is triggered by EventBridge at 10-minute intervals, while transformation and loading are initiated by S3 put events in their respective buckets.
+
+    EventBridge: Enables the scheduling of extraction tasks at regular 10-minute intervals, ensuring timely updates from the transactional database.
+
+    CloudWatch: Monitors the pipeline for errors and warnings, providing real-time insights into the health and performance of the ETL processes.
+
+    Amazon SNS: Facilitates alerting mechanisms for error and warning monitoring, allowing for swift response and issue resolution.
+
+    Secrets Manager: Safeguards AWS and database credentials, ensuring secure access to sensitive information during the execution of ETL processes.
+
+    GitHub Actions: Manages secrets related to the pipeline, providing a secure and automated way to protect sensitive information within the development and deployment workflows.
+
+Workflow
+
+    Extraction:
+        The extraction process is scheduled through EventBridge at 10-minute intervals, ensuring a consistent and timely refresh of data from the transactional database.
+
+    Transformation:
+        AWS Lambda functions perform data transformations, converting the raw transactional data into a format suitable for analytics (OLAP).
+
+    Loading:
+        Processed data is loaded into the designated S3 buckets, triggering further actions based on S3 put events.
+
+    Monitoring and Alerting:
+        CloudWatch monitors the pipeline for errors and warnings, with Amazon SNS providing alerting mechanisms to notify stakeholders promptly.
+
+    Security:
+        AWS Secrets Manager and GitHub Actions secrets are employed to safeguard credentials, ensuring secure access to AWS services and databases.
+
+Benefits
+
+    Scalability: Leveraging AWS services allows the pipeline to scale effortlessly with growing data volumes, ensuring consistent performance.
+
+    Timely Updates: Event-driven scheduling ensures timely updates from the transactional database, providing up-to-date analytics data.
+
+    Security: Robust security measures, including Secrets Manager and GitHub Actions secrets, protect sensitive credentials and information throughout the pipeline.
+
+    Reliability: CloudWatch monitoring and SNS alerting contribute to a reliable and resilient pipeline, minimizing downtime and facilitating rapid issue resolution.
+
+Future Enhancements
+
+The TotalTotes Data Warehouse Pipeline is designed with scalability in mind, and future enhancements may focus on expanding and enriching the data schema. This could involve the addition of more fact tables to capture a broader range of business metrics and events. Furthermore, there is potential to enhance the dimensions table, incorporating additional attributes and hierarchies to provide a more comprehensive and nuanced view of the data. These enhancements aim to empower TotalTotes with a more robust and detailed analytical foundation, supporting their evolving business intelligence needs.
+
 How to Use This Project:
+
 Ingestion Lambda:
+
 Overview:
 
 This AWS Lambda function processes incoming events, retrieves updated data from a database, and stores the formatted data in an S3 bucket to keep data up-to-date for data warehousing.
