@@ -1,5 +1,6 @@
 from src.loading_lambda.loading_lambda import lambda_handler
 from unittest.mock import patch
+import datetime
 from moto import mock_s3
 import subprocess
 import logging
@@ -23,15 +24,6 @@ def aws_credentials():
     os.environ["AWS_ACCESS_KEY_ID"] = "testing"
     os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"
     os.environ["AWS_DEFAULT_REGION"] = "eu-west-2"
-
-
-# 1. initdb psql container with wh schema. (docker-compose-wh.yaml)
-# 2. mock get_credentials for the psql container.
-# 3. mock s3 with parquet already uploaded (fixture)
-# 4. mock event object with correct bucket name and parquet file path.
-
-# fixture and path order in test function?
-# move file upload to s3 fixture?
 
 
 @pytest.fixture(scope="module")
@@ -95,7 +87,9 @@ def s3_fixture():
         "port": 5433,
     },
 )
-def test_loading_lambda(get_credentials, pg_container_fixture, s3_fixture):
+def test_loading_lambda_dim_staff(
+    get_credentials, pg_container_fixture, s3_fixture
+):  # noqa E501
     s3_client, s3_bucket = s3_fixture
 
     with open("test/mock_parquet/data-144511.parquet", "rb") as file:
@@ -137,3 +131,142 @@ def test_loading_lambda(get_credentials, pg_container_fixture, s3_fixture):
             "jeremie.franey@terrifictotes.com",
         ]
     )
+
+
+# "dim_date"
+@patch(
+    "src.loading_lambda.loading_lambda.get_credentials",
+    return_value={
+        "user": "testuser",
+        "password": "testpass",
+        "database": "testdb",
+        "host": "localhost",
+        "port": 5433,
+    },
+)
+def test_loading_lambda_dim_date(
+    get_credentials, pg_container_fixture, s3_fixture
+):  # noqa E501
+    s3_client, s3_bucket = s3_fixture
+
+    with open("test/mock_parquet/dim_date.parquet", "rb") as file:
+        s3_client.put_object(
+            Body=file.read(),
+            Bucket=s3_bucket,
+            Key="dim_date/dim_date.parquet",  # noqa E501
+        )
+
+    event = {
+        "Records": [
+            {
+                "s3": {
+                    "bucket": {"name": s3_bucket},
+                    "object": {"key": "dim_date/dim_date.parquet"},
+                }
+            }
+        ]
+    }
+    lambda_handler(event, "context")
+
+    conn = pg8000.connect(
+        user="testuser",
+        password="testpass",
+        host="localhost",
+        port=5433,
+        database="testdb",
+    )
+    cursor = conn.cursor()
+    cursor.execute("SELECT * from dim_date limit 1;")
+    result = cursor.fetchone()  # [0]
+    print(result)
+    assert result == [
+        datetime.date(2023, 11, 18),
+        2023,
+        11,
+        18,
+        6,
+        "Saturday",
+        "November",
+        4,
+    ]
+
+
+# "fact_sales_order"
+@patch(
+    "src.loading_lambda.loading_lambda.get_credentials",
+    return_value={
+        "user": "testuser",
+        "password": "testpass",
+        "database": "testdb",
+        "host": "localhost",
+        "port": 5433,
+    },
+)
+def test_loading_lambda_fact_sales_order(
+    get_credentials, pg_container_fixture, s3_fixture, caplog
+):  # noqa E501
+    s3_client, s3_bucket = s3_fixture
+
+    with open("test/mock_parquet/fact_sales_order.parquet", "rb") as file:
+        s3_client.put_object(
+            Body=file.read(),
+            Bucket=s3_bucket,
+            Key="fact_sales_order/fact_sales_order.parquet",  # noqa E501
+        )
+
+    event = {
+        "Records": [
+            {
+                "s3": {
+                    "bucket": {"name": s3_bucket},
+                    "object": {
+                        "key": "fact_sales_order/fact_sales_order.parquet"
+                    },  # noqa E501
+                }
+            }
+        ]
+    }
+    with caplog.at_level(logging.ERROR):
+        lambda_handler(event, "context")
+        assert (
+            "pg8000 - an error has occurred: insert or update on table"
+            in caplog.text  # noqa E501
+        )
+
+
+# wrong-credentials
+
+
+@patch(
+    "src.loading_lambda.loading_lambda.get_credentials",
+    return_value={
+        "user": "WRONG",
+        "password": "testpass",
+        "database": "testdb",
+        "host": "localhost",
+        "port": 5433,
+    },
+)
+def test_loading_lambda_wrong_cred(
+    get_credentials, pg_container_fixture, s3_fixture, caplog
+):  # noqa E501
+    s3_client, s3_bucket = s3_fixture
+
+    event = {
+        "Records": [
+            {
+                "s3": {
+                    "bucket": {"name": s3_bucket},
+                    "object": {
+                        "key": "fact_sales_order/fact_sales_order.parquet"
+                    },  # noqa E501
+                }
+            }
+        ]
+    }
+    with caplog.at_level(logging.ERROR):
+        lambda_handler(event, "context")
+        assert (
+            "pg8000 - an error has occurred: password authentication failed"
+            in caplog.text  # noqa E501
+        )
