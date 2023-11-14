@@ -18,7 +18,6 @@ resource "aws_iam_role" "role_for_ingestion_lambda" {
   })
 }
 
-
 resource "aws_iam_policy" "cloudwatch_logs_policy_for_ingestion_lambda" {
   name        = "ingestion_lambda_cloudwatch_logs_policy"
   description = "Allows ingestion lambda to write logs to cloudwatch"
@@ -66,12 +65,12 @@ data "aws_iam_policy_document" "ingestion_lambda_s3_ingestion_bucket_document" {
   statement {
     effect = "Allow"
     actions = [
-          "s3:GetObject",
-          "s3-object-lambda:GetObject",
-          "s3-object-lambda:PutObject",
-          "s3:PutObject",
-          "s3:ListBucket" #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        ]
+      "s3:GetObject",
+      "s3-object-lambda:GetObject",
+      "s3-object-lambda:PutObject",
+      "s3:PutObject",
+      "s3:ListBucket"
+    ]
     resources = [
       "${aws_s3_bucket.ingestion_data_bucket.arn}/*",
       "${aws_s3_bucket.ingestion_data_bucket.arn}",
