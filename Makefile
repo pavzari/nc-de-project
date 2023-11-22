@@ -70,17 +70,14 @@ define empty_bucket
 	@echo "S3 bucket $1 has been emptied."
 endef
 
-empty_ingestion_bucket:
+empty-ingestion:
 	$(call empty_bucket,$(S3_INGESTION_BUCKET))
-empty_transformed_bucket:
+
+empty-transformed:
 	$(call empty_bucket,$(S3_TRANSFORMED_BUCKET))
 
-empty-ingestion: empty_ingestion_bucket
-
-empty-transformed: empty_transformed_bucket
-
 ## Empty the data warehouse 
-empty_data_warehouse:
+empty-warehouse:
 	  @PGPASSWORD=${WDB_PASSWORD} psql -h ${WDB_HOST} -p ${WDB_PORT} -d ${WDB_NAME} -U ${WDB_USER} -c "\
 	    DELETE FROM fact_sales_order; \
 	    DELETE FROM dim_currency; \
@@ -95,21 +92,19 @@ empty_data_warehouse:
 		DELETE FROM fact_purchase_order;"
 	@echo "Data warehouse has been emptied."
 
-empty-warehouse: empty_data_warehouse
-
 ## Empty s3 buckets and data warehouse
 empty-all: empty-ingestion empty-transformed empty-warehouse
 
-## Create production database secret in AWS secrets manager
-create_production_secret:
+## Create production database credentials secret in AWS secrets manager
+create-production-secret:
 	@echo "Creating production database secret..."
 	@aws secretsmanager create-secret \
 		--name production \
 		--description "Production database credentials" \
-		--secret-string '{"host":"$(WDB_HOST)","port":$(WDB_PORT),"user":"$(WDB_USER)","password":"$(WDB_PASSWORD)","database":"$(WDB_NAME)"}' \
+		--secret-string '{"host":"$(PDB_HOST)","port":$(PDB_PORT),"user":"$(PDB_USER)","password":"$(PDB_PASSWORD)","database":"$(PDB_NAME)"}' \
 
-## Create data warehouse secret in AWS secrets manager
-create_warehouse_secret:
+## Create data warehouse credentials secret in AWS secrets manager
+create-warehouse-secret:
 	@echo "Creating warehouse database secret..."
 	@aws secretsmanager create-secret \
 		--name warehouse \
