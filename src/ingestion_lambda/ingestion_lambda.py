@@ -61,8 +61,8 @@ def get_credentials(secret_name):
         The name of the database credentials
         secret the lambda is trying to connect to.
         Options:
-        - "totesys-production"
-        - "totesys-warehouse"
+        - "production"
+        - "warehouse"
 
     Raises
     ------

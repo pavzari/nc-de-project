@@ -173,13 +173,13 @@ def test_ingestion_lambda_staff_deparment_data_saved_to_s3(
 
     with caplog.at_level(logging.INFO):
         lambda_handler(event, "context")
-        assert "staff/2023/1/1/data-173019.json" in caplog.text  # noqa E501
+        assert "staff/2023/1/1/staff-173019.json" in caplog.text  # noqa E501
 
     response = s3_client.list_objects(Bucket=s3_bucket)
     assert response["Contents"][1]["Key"] == "last_update.txt"  # noqa E501
     assert (
         response["Contents"][0]["Key"]
-        == "department/2023/1/1/data-173019.json"  # noqa E501
+        == "department/2023/1/1/department-173019.json"  # noqa E501
     )
 
 
@@ -232,15 +232,17 @@ def test_ingestion_lambda_counter_address_saved_to_s3(
 
     with caplog.at_level(logging.INFO):
         lambda_handler(event, "context")
-        assert "counterparty/2023/1/1/data-173019.json" in caplog.text  # noqa E501
+        assert (
+            "counterparty/2023/1/1/counterparty-173019.json" in caplog.text
+        )  # noqa E501
 
     response = s3_client.list_objects(Bucket=s3_bucket)
     assert (
         response["Contents"][0]["Key"]
-        == "address/2023/1/1/data-173019.json"  # noqa E501
+        == "address/2023/1/1/address-173019.json"  # noqa E501
     )
 
     assert (
         response["Contents"][1]["Key"]
-        == "counterparty/2023/1/1/data-173019.json"  # noqa E501
+        == "counterparty/2023/1/1/counterparty-173019.json"  # noqa E501
     )

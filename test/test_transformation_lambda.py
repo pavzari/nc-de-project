@@ -19,7 +19,8 @@ def aws_credentials():
     os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"
     os.environ["AWS_DEFAULT_REGION"] = "eu-west-2"
 
-@patch.dict(os.environ,{"TRANS_BUCKET":"mocked_bucket_name"})# noqa E501
+
+@patch.dict(os.environ, {"TRANS_BUCKET": "mocked_bucket_name"})  # noqa E501
 @mock_s3
 class TestTransformationLambda:
     """tests for transformation lambda"""
@@ -55,12 +56,10 @@ class TestTransformationLambda:
 
         lambda_handler("event", "context")
 
-        response = s3.list_objects(
-            Bucket="mocked_bucket_name"
-        )  # noqa E501
+        response = s3.list_objects(Bucket="mocked_bucket_name")  # noqa E501
         assert (
             response["Contents"][0]["Key"]
-            == "dim_design/2020/1/1/data-173019.parquet"  # noqa E501
+            == "dim_design/2020/1/1/dim_design-173019.parquet"  # noqa E501
         )
 
     # sales_order
@@ -102,16 +101,14 @@ class TestTransformationLambda:
 
         lambda_handler("event", "context")
 
-        response = s3.list_objects(
-            Bucket="mocked_bucket_name"
-        )
+        response = s3.list_objects(Bucket="mocked_bucket_name")
         assert (
             response["Contents"][0]["Key"]
-            == "dim_date/2020/1/1/data-173019.parquet"  # noqa E501
+            == "dim_date/2020/1/1/dim_date-173019.parquet"  # noqa E501
         )
         assert (
             response["Contents"][1]["Key"]
-            == "fact_sales_order/2020/1/1/data-173019.parquet"
+            == "fact_sales_order/2020/1/1/fact_sales_order-173019.parquet"
         )  # noqa E501
 
     # staff
@@ -165,12 +162,10 @@ class TestTransformationLambda:
 
         lambda_handler("event", "context")
 
-        response = s3.list_objects(
-            Bucket="mocked_bucket_name"
-        )
+        response = s3.list_objects(Bucket="mocked_bucket_name")
         assert (
             response["Contents"][0]["Key"]
-            == "dim_staff/2020/1/1/data-173019.parquet"  # noqa E501
+            == "dim_staff/2020/1/1/dim_staff-173019.parquet"  # noqa E501
         )
 
     # department
@@ -204,9 +199,7 @@ class TestTransformationLambda:
 
         lambda_handler("event", "context")
 
-        response = s3.list_objects(
-            Bucket="mocked_bucket_name"
-        )
+        response = s3.list_objects(Bucket="mocked_bucket_name")
 
         assert "Contents" not in response.keys()
 
