@@ -24,7 +24,9 @@ class TestWriteFile:
     """tests for write file util function"""
 
     def test_puts_json_file_and_updated_file_in_s3_bucket(self):
-        testJSON = {"test": [{"name": "John"}, {"age": 30}, {"city": "New York"}]}
+        testJSON = {
+            "test": [{"name": "John"}, {"age": 30}, {"city": "New York"}]
+        }  # noqa E501
         timestamp = dt.now()
         s3 = boto3.client("s3")
         s3.create_bucket(
@@ -38,7 +40,9 @@ class TestWriteFile:
 
     @time_machine.travel(dt(2020, 1, 1, 17, 30, 19))
     def test_key_is_correct(self):
-        testJSON = {"test": [{"name": "John"}, {"age": 30}, {"city": "New York"}]}
+        testJSON = {
+            "test": [{"name": "John"}, {"age": 30}, {"city": "New York"}]
+        }  # noqa E501
         timestamp = dt.now()
         s3 = boto3.client("s3")
         s3.create_bucket(
@@ -55,7 +59,9 @@ class TestWriteFile:
     @time_machine.travel(dt(2020, 1, 1, 17, 30, 19))
     def test_successful_log_output_is_correct(self, caplog):
         with caplog.at_level(logging.INFO):
-            testJSON = {"test": [{"name": "John"}, {"age": 30}, {"city": "New York"}]}
+            testJSON = {
+                "test": [{"name": "John"}, {"age": 30}, {"city": "New York"}]
+            }  # noqa E501
             timestamp = dt.now()
             s3 = boto3.client("s3")
             s3.create_bucket(

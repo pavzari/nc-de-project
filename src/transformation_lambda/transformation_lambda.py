@@ -48,7 +48,7 @@ def lambda_handler(event, context):
     #     "design": ("dim_design", format_dim_design),
     #     "currency": ("dim_currency", format_dim_currency),
     #     "counterparty": ("dim_counterparty", format_dim_counterparty),
-    #     "sales_order": [("dim_date", format_dim_date), ("fact_sales_order", format_fact_sales_order)],
+    #     "sales_order": [("dim_date", format_dim_date), / ("fact_sales_order", format_fact_sales_order)], # noqa E501
     # }
 
     # if table_name in table_data_formatters:
@@ -294,7 +294,9 @@ def write_file_to_s3(bucket_name, table_name, parquet_buffer):
     day = date.day
     time = date.strftime("%H%M%S")
 
-    file_name = f"{table_name}/{year}/{month}/{day}/{table_name}-{time}.parquet"
+    file_name = (
+        f"{table_name}/{year}/{month}/{day}/{table_name}-{time}.parquet"  # noqa E501
+    )
 
     try:
         response = client.put_object(
