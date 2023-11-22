@@ -1,4 +1,4 @@
--- PostgreSQL production database sql schema
+-- Production database schema for the postgreSQL test container.
 
 CREATE TABLE address (
     address_id INT PRIMARY KEY,

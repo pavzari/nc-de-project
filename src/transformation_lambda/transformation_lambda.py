@@ -170,7 +170,7 @@ def read_s3_json(event):
     read recent stored json file
     and convert to dictionary
 
-    On receipt of a PutObject event, checks that the file type is txt and
+    On receipt of a PutObject event, checks that the file type is json and
     then logs the contents.
 
     Args:

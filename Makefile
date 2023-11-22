@@ -1,5 +1,12 @@
+# Check if .env file exists and include/export variables if present
+ifeq ($(wildcard .env),)
+$(warning Warning: .env file not found. Some variables might not be set.)
+else
+include .env
+export
+endif
+
 PROJECT_NAME = nc-de-project
-REGION = eu-west-2
 PYTHON_INTERPRETER = python
 WD=$(shell pwd)
 PYTHONPATH=${WD}
@@ -57,19 +64,14 @@ check-coverage:
 run-checks: security-test run-flake unit-test check-coverage
 
 ## Empty ingestion/transformed data s3 buckets
-S3_INGESTION_BUCKET = nc-de-project-ingested-data-bucket-20231102173127149000000003
-S3_TRANSFORMED_BUCKET = nc-de-project-transformed-data-20231102173127140100000001
-AWS_PROFILE = nc-admin
-
 define empty_bucket
 	@echo "Emptying S3 bucket: $1"
-	@aws s3 rm s3://$1 --recursive --profile $(AWS_PROFILE)
+	@aws s3 rm s3://$1 --recursive
 	@echo "S3 bucket $1 has been emptied."
 endef
 
 empty_ingestion_bucket:
 	$(call empty_bucket,$(S3_INGESTION_BUCKET))
-
 empty_transformed_bucket:
 	$(call empty_bucket,$(S3_TRANSFORMED_BUCKET))
 
@@ -78,13 +80,8 @@ empty-ingestion: empty_ingestion_bucket
 empty-transformed: empty_transformed_bucket
 
 ## Empty the data warehouse 
-DB_HOST = nc-data-eng-project-dw-prod.chpsczt8h1nu.eu-west-2.rds.amazonaws.com
-DB_PORT = 5432
-DB_NAME = postgres
-DB_USER = project_team_5
-
 empty_data_warehouse:
-	  @psql -h ${DB_HOST} -p ${DB_PORT} -d ${DB_NAME} -U ${DB_USER} -W -c "\
+	  @PGPASSWORD=${WDB_PASSWORD} psql -h ${WDB_HOST} -p ${WDB_PORT} -d ${WDB_NAME} -U ${WDB_USER} -c "\
 	    DELETE FROM fact_sales_order; \
 	    DELETE FROM dim_currency; \
 	    DELETE FROM dim_date; \
@@ -96,8 +93,25 @@ empty_data_warehouse:
 	    DELETE FROM dim_counterparty; \
 		DELETE FROM fact_payment; \
 		DELETE FROM fact_purchase_order;"
-
 	@echo "Data warehouse has been emptied."
 
 empty-warehouse: empty_data_warehouse
 
+## Empty s3 buckets and data warehouse
+empty-all: empty-ingestion empty-transformed empty-warehouse
+
+## Create production database secret in AWS secrets manager
+create_production_secret:
+	@echo "Creating production database secret..."
+	@aws secretsmanager create-secret \
+		--name totesys-production \
+		--description "Production database credentials" \
+		--secret-string '{"host":"$(WDB_HOST)","port":$(WDB_PORT),"user":"$(WDB_USER)","password":"$(WDB_PASSWORD)","database":"$(WDB_NAME)"}' \
+
+## Create data warehouse secret in AWS secrets manager
+create_warehouse_secret:
+	@echo "Creating warehouse database secret..."
+	@aws secretsmanager create-secret \
+		--name totesys-warehouse \
+		--description "Warehouse database credentials" \
+		--secret-string '{"host":"$(WDB_HOST)","port":$(WDB_PORT),"user":"$(WDB_USER)","password":"$(WDB_PASSWORD)","database":"$(WDB_NAME)"}' \
