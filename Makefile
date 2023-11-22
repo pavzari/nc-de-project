@@ -104,7 +104,7 @@ empty-all: empty-ingestion empty-transformed empty-warehouse
 create_production_secret:
 	@echo "Creating production database secret..."
 	@aws secretsmanager create-secret \
-		--name totesys-production \
+		--name production \
 		--description "Production database credentials" \
 		--secret-string '{"host":"$(WDB_HOST)","port":$(WDB_PORT),"user":"$(WDB_USER)","password":"$(WDB_PASSWORD)","database":"$(WDB_NAME)"}' \
 
@@ -112,6 +112,6 @@ create_production_secret:
 create_warehouse_secret:
 	@echo "Creating warehouse database secret..."
 	@aws secretsmanager create-secret \
-		--name totesys-warehouse \
+		--name warehouse \
 		--description "Warehouse database credentials" \
 		--secret-string '{"host":"$(WDB_HOST)","port":$(WDB_PORT),"user":"$(WDB_USER)","password":"$(WDB_PASSWORD)","database":"$(WDB_NAME)"}' \
