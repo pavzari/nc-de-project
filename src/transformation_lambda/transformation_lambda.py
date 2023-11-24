@@ -32,41 +32,6 @@ def lambda_handler(event, context):
     Exception
         If there is an error during the processing of the event.
     """
-
-    # read "latest_json_data.txt" for a list of jsons
-    # loop through the jsons:
-    # - replace get_table_name with just extracting it from the s3 key/path
-    # - extract json content (modify and reuse read_s3_json)
-    # - decide on formatter
-    # - modify write_file_to_s3 to return the key
-    # - add the key to a list latest_parquet_data
-    # - end of loop: write "latest_parquet_data.txt" to transformed bucket.
-
-    # table_data_formatters = {
-    #     "address": ("dim_location", format_dim_location),
-    #     "staff": ("dim_staff", format_dim_staff),
-    #     "design": ("dim_design", format_dim_design),
-    #     "currency": ("dim_currency", format_dim_currency),
-    #     "counterparty": ("dim_counterparty", format_dim_counterparty),
-    #     "sales_order": [("dim_date", format_dim_date), / ("fact_sales_order", format_fact_sales_order)], # noqa E501
-    # }
-
-    # if table_name in table_data_formatters:
-    #     mappings = table_data_formatters[table_name]
-
-    #     if table_name == "sales_order":
-    #         for olap_table, formatter in mappings:
-    #             transformed_data = formatter(data)
-    #             parquet_buffer = create_parquet_buffer(transformed_data)
-    #             write_file_to_s3(bucket_name, olap_table, parquet_buffer)
-    #     else:
-    #         olap_table, formatter = mappings
-    #         transformed_data = formatter(data)
-    #         parquet_buffer = create_parquet_buffer(transformed_data)
-    #         write_file_to_s3(bucket_name, olap_table, parquet_buffer)
-    # else:
-    #     logger.warning("Unrecognized JSON data received.")
-
     bucket_name = os.environ["TRANS_BUCKET"]
 
     table_name = get_table_name(event)

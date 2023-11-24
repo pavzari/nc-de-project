@@ -1,3 +1,5 @@
+![test-and-deploy](https://github.com/pavzari/nc-de-project/actions/workflows/test-and-deploy.yml/badge.svg)
+
 This repository contains the code and configuration for a cloud-based ETL data platform for a hypothetical retail client. The solution extracts data from an online transactional processing (OLTP) database at regular intervals and loads the transformed data into an online analytics processing (OLAP) data warehouse.
 
 The target data warehouse is structured following a star schema for optimal query performance and data analysis. Entity-relationship diagrams (ERDs) for the source database and the resulting star schema in the data warehouse are provided below:
