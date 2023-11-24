@@ -16,7 +16,7 @@ resource "aws_s3_bucket_notification" "ingestion_bucket_notification" {
   lambda_function {
     lambda_function_arn = aws_lambda_function.transformation_lambda.arn
     events              = ["s3:ObjectCreated:*"]
-    filter_suffix       = ".json"
+    filter_suffix       = "latest-json-data.txt"
   }
   depends_on = [aws_lambda_permission.tranformation_lambda_invoke_permission]
 }
@@ -35,7 +35,7 @@ resource "aws_s3_bucket_notification" "tranformed_bucket_notification" {
   lambda_function {
     lambda_function_arn = aws_lambda_function.warehouse_loading_lambda.arn
     events              = ["s3:ObjectCreated:*"]
-    filter_suffix       = ".parquet"
+    filter_suffix       = "latest-parquet-data.txt"
   }
   depends_on = [aws_lambda_permission.loading_lambda_invoke_permission]
 }
