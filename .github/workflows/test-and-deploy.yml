@@ -6,11 +6,6 @@ on:
       - main
 
 jobs:
-  initialise-workflow:
-    runs-on: ubuntu-latest
-    steps:
-      - name: initialise workflow
-        run: echo "initialising workflow"
 
   run-checks:
     runs-on: ubuntu-latest
