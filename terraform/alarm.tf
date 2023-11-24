@@ -1,3 +1,15 @@
+resource "aws_cloudwatch_log_group" "ingestion_lambda_log_group" {
+  name = "/aws/lambda/${aws_lambda_function.ingestion_lambda.function_name}"
+}
+
+resource "aws_cloudwatch_log_group" "transformation_lambda_log_group" {
+  name = "/aws/lambda/${aws_lambda_function.transformation_lambda.function_name}"
+}
+
+resource "aws_cloudwatch_log_group" "loading_lambda_log_group" {
+  name = "/aws/lambda/${aws_lambda_function.warehouse_loading_lambda.function_name}"
+}
+
 resource "aws_sns_topic" "log_notification_topic" {
   name = "nc-de-project-pipeline-log-topic"
 }
@@ -8,11 +20,10 @@ resource "aws_sns_topic_subscription" "email_subscription" {
   endpoint  = "nc404namenotfound@gmail.com"
 }
 
-
 resource "aws_cloudwatch_log_metric_filter" "warning_metrics_filter_ingest" {
   name           = "ingestion-log-warning-filter"
   pattern        = "WARNING"
-  log_group_name = "/aws/lambda/${aws_lambda_function.ingestion_lambda.function_name}"
+  log_group_name = aws_cloudwatch_log_group.ingestion_lambda_log_group.name
 
   metric_transformation {
     name      = "ingestion-warning-log-count"
@@ -20,10 +31,11 @@ resource "aws_cloudwatch_log_metric_filter" "warning_metrics_filter_ingest" {
     value     = "1"
   }
 }
+
 resource "aws_cloudwatch_log_metric_filter" "error_metric_filter_ingest" {
   name           = "ingestion-log-error-filter"
   pattern        = "ERROR"
-  log_group_name = "/aws/lambda/${aws_lambda_function.ingestion_lambda.function_name}"
+  log_group_name = aws_cloudwatch_log_group.ingestion_lambda_log_group.name
 
   metric_transformation {
     name      = "ingestion-error-log-count"
@@ -31,10 +43,11 @@ resource "aws_cloudwatch_log_metric_filter" "error_metric_filter_ingest" {
     value     = "1"
   }
 }
+
 resource "aws_cloudwatch_log_metric_filter" "runtime_error_ingest" {
   name           = "IngestionRuntimeError"
   pattern        = "RuntimeError"
-  log_group_name = "/aws/lambda/${aws_lambda_function.ingestion_lambda.function_name}"
+  log_group_name = aws_cloudwatch_log_group.ingestion_lambda_log_group.name
 
   metric_transformation {
     name      = "ingestion-runtime-log-count"
@@ -88,7 +101,8 @@ resource "aws_cloudwatch_metric_alarm" "runtime_alert_ingest" {
 resource "aws_cloudwatch_log_metric_filter" "warning_metrics_filter_transform" {
   name           = "transformation-log-warning-filter"
   pattern        = "WARNING"
-  log_group_name = "/aws/lambda/${aws_lambda_function.transformation_lambda.function_name}"
+  log_group_name = aws_cloudwatch_log_group.transformation_lambda_log_group.name
+
 
   metric_transformation {
     name      = "transformation-warning-log-count"
@@ -99,7 +113,7 @@ resource "aws_cloudwatch_log_metric_filter" "warning_metrics_filter_transform" {
 resource "aws_cloudwatch_log_metric_filter" "error_metric_filter_transform" {
   name           = "transformation-log-error-filter"
   pattern        = "ERROR"
-  log_group_name = "/aws/lambda/${aws_lambda_function.transformation_lambda.function_name}"
+  log_group_name = aws_cloudwatch_log_group.transformation_lambda_log_group.name
 
   metric_transformation {
     name      = "transformation-error-log-count"
@@ -110,7 +124,7 @@ resource "aws_cloudwatch_log_metric_filter" "error_metric_filter_transform" {
 resource "aws_cloudwatch_log_metric_filter" "runtime_error_transform" {
   name           = "transformationRuntimeError"
   pattern        = "RuntimeError"
-  log_group_name = "/aws/lambda/${aws_lambda_function.transformation_lambda.function_name}"
+  log_group_name = aws_cloudwatch_log_group.transformation_lambda_log_group.name
 
   metric_transformation {
     name      = "transformation-runtime-log-count"
@@ -163,7 +177,7 @@ resource "aws_cloudwatch_metric_alarm" "runtime_alert_transform" {
 resource "aws_cloudwatch_log_metric_filter" "warning_metrics_filter_loading" {
   name           = "loading-log-warning-filter"
   pattern        = "WARNING"
-  log_group_name = "/aws/lambda/${aws_lambda_function.warehouse_loading_lambda.function_name}"
+  log_group_name = aws_cloudwatch_log_group.loading_lambda_log_group.name
 
   metric_transformation {
     name      = "loading-warning-log-count"
@@ -174,7 +188,7 @@ resource "aws_cloudwatch_log_metric_filter" "warning_metrics_filter_loading" {
 resource "aws_cloudwatch_log_metric_filter" "error_metric_filter_loading" {
   name           = "loading-log-error-filter"
   pattern        = "ERROR"
-  log_group_name = "/aws/lambda/${aws_lambda_function.warehouse_loading_lambda.function_name}"
+  log_group_name = aws_cloudwatch_log_group.loading_lambda_log_group.name
 
   metric_transformation {
     name      = "loading-error-log-count"
@@ -185,7 +199,7 @@ resource "aws_cloudwatch_log_metric_filter" "error_metric_filter_loading" {
 resource "aws_cloudwatch_log_metric_filter" "runtime_error_loading" {
   name           = "loadingRuntimeError"
   pattern        = "RuntimeError"
-  log_group_name = "/aws/lambda/${aws_lambda_function.warehouse_loading_lambda.function_name}"
+  log_group_name = aws_cloudwatch_log_group.loading_lambda_log_group.name
 
   metric_transformation {
     name      = "loadingruntime-log-count"
@@ -233,35 +247,7 @@ resource "aws_cloudwatch_metric_alarm" "runtime_alert_loading" {
   threshold           = 1
   alarm_description   = "This metric monitors for runtime errors"
   alarm_actions       = [aws_sns_topic.log_notification_topic.arn]
-
 }
-# #####Needs attention in regards to the namespace 
-
-# resource "aws_cloudwatch_metric_alarm" "duration_alert" {
-#   alarm_name          = "DurationAlarm"
-#   comparison_operator = "GreaterThanOrEqualToThreshold"
-#   evaluation_periods  = 1
-#   metric_name         = "Duration"
-#   namespace           = "AWS/Lambda/Ingestion"
-#   statistic           = "Average"
-#   period              = 10
-#   threshold           = 1000
-#   alarm_description   = "This metric monitors function execution duration"
-#   alarm_actions       = [aws_sns_topic.log_notification_topic.arn]
-# }
-
-# #######^^^^^^^^^^^^^^^^^^^
 
 
 
-
-
-# How to link this to cloudwatch policy????
-# NOTES:
-# One topic for the whole pipeline and different lambdas and log severity levels should be sufficient.
-# Look into different protocols and endpoints: Slack? Dashboard? API?
-# DEBUG - Detailed information, typically of interest only when diagnosing problems.
-# INFO - Confirmation that things are working as expected.
-# WARNING - An indication that something unexpected happened, or indicative of some problem in the near future (e.g. ‘disk space low’). The software is still working as expected.
-# ERROR - Due to a more serious problem, the software has not been able to perform some function.
-# CRITICAL - A serious error, indicating that the program itself may be unable to continue running.

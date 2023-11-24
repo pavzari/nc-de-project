@@ -117,7 +117,7 @@ def get_credentials(secret_name):
     secret_name : str
         The name of the database credentials secret
         the lambda is trying to connect to.
-        Options: "totesys-production", "totesys-warehouse".
+        Options: "production", "warehouse".
 
     Raises
     ------
@@ -160,8 +160,7 @@ def get_credentials(secret_name):
 
 def get_connection(database_credentials):
     """
-    Gets connections to the OLTP database - Totesys.
-
+    Gets connections to the OLTP database.
 
     Parameters
     ----------
@@ -191,7 +190,7 @@ def get_connection(database_credentials):
         port = database_credentials["port"]
         password = database_credentials["password"]
         conn = Connection(user, host, database, port, password, timeout=5)
-        logger.info("Connection to database Totesys has been established.")
+        logger.info("Connection to database has been established.")
         return conn
     except DatabaseError as db:
         logger.error(f"pg8000 - an error has occurred: {db.args[0]['M']}")

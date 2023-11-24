@@ -70,8 +70,7 @@ def test_get_connection_returns_correct_log_when_successful_con(
         }
         get_connection(database_credentials)
         assert (
-            "Connection to database Totesys has been established."
-            in caplog.text  # noqa: E501
+            "Connection to database has been established." in caplog.text  # noqa: E501
         )
 
 

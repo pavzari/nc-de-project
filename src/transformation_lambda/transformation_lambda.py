@@ -173,17 +173,20 @@ def read_s3_json(event):
     On receipt of a PutObject event, checks that the file type is json and
     then logs the contents.
 
-    Args:
+    Parameters
+    ----------
         event:
             a valid S3 PutObject event
         context:
             a valid AWS lambda Python context object - see
             https://docs.aws.amazon.com/lambda/latest/dg/python-context.html
 
-    Return:
+    Returns
+    -------
         dictionary formatted json content.
 
-    Raises:
+    Raises
+    ------
         RuntimeError: An unexpected error occurred in execution. Other errors
         result in an informative log message.
     """
@@ -325,8 +328,7 @@ def format_dim_location(address_json):
 
     Raises
     ------
-
-    KeyError:
+        KeyError:
         If the address key is missing.
         If any of the columns are missing.
 
@@ -427,22 +429,25 @@ def format_dim_staff(staff_data):
 
 def format_dim_design(design_table):
     """
-    argument:design_table
+    Parameters
+    ----------
+    design_table
         type:dict
             key: table name
             value: updated content (list of dictionary)
 
-    return:
+    Returns:
+    --------
         type: list of list
             for each row:
                 design_id: id (int)
                 design_name:name of design (str)
                 file_location:path of file (str)
                 file_name:name of file (str)
-    raise:
+    Raises
+    ------
         RuntimeError
         KeyError
-
     """
     try:
         # read table content
@@ -544,7 +549,7 @@ def format_dim_currency(currency_table):
 
 def format_dim_counterparty(table):
     """
-    formats the data to populate the dim_staff table
+    Formats the data to populate the dim_staff table
 
     Parameters
     ----------
@@ -552,16 +557,15 @@ def format_dim_counterparty(table):
 
     Raises
     ------
-    KeyError
+        KeyError
         if incorrect counterpary data or address data provided
-    RuntimeError
+        RuntimeError
         if an unhandled exception occurs in the try block.
 
     Returns
     ------
     list of lists
         each list contains everything from the updated counterparty dict
-
     """
 
     try:
@@ -619,12 +623,15 @@ def format_dim_counterparty(table):
 
 def format_dim_date(sales_order_table):
     """
-    argument:sales_order_table
+     Parameters
+    ----------
+        sales_order_table
         type:dict
             key: table name
             value: updated content (list of dictionary)
 
-    return:
+    Returns
+    -------
         type: list of list
             for each row:
                 date_id:datetime (date ('%Y-%m-%d'))
@@ -635,17 +642,10 @@ def format_dim_date(sales_order_table):
                 day_name:weekday name of the date (str)
                 month_name: month name of the date (str)
                 quarter: quarter of the date (int)
-    raise:
+    Raises
+    ------
         RuntimeError
         KeyError
-
-    question:
-        when running every 10mins if having sale_order
-        and without accessing the data warehouse
-        do we assert new line again and again for the same date?
-        do we need to avoid it? how?
-
-        im guessing the logic all done by loading lambda maybe
     """
     try:
         # read updated content from input table
@@ -717,8 +717,7 @@ def format_fact_sales_order(sales_order_json):
 
     Raises
     ------
-
-    KeyError:
+        KeyError:
         If the sales_order key is missing.
         If any of the columns are missing.
 

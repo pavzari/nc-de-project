@@ -2,8 +2,8 @@ This repository contains the code and configuration for a cloud-based ETL data p
 
 The target data warehouse is structured following a star schema for optimal query performance and data analysis. Entity-relationship diagrams (ERDs) for the source database and the resulting star schema in the data warehouse are provided below:
 
-- [Source Database ERD](./docs/olap-db.png)
-- [Data Warehouse Star Schema ERD](./docs/oltp-db.png)
+- [Source Database ERD](./docs/oltp-db.png)
+- [Data Warehouse Star Schema ERD](./docs/olap-db.png)
 
 ### Technology Stack
 
@@ -29,6 +29,13 @@ The target data warehouse is structured following a star schema for optimal quer
 - CloudWatch provides logging for events and errors, sending email alerts for significant issues during each pipeline step.
 
 ### Development Setup
+
+Clone the repository:
+
+```sh
+git clone https://github.com/pavzari/nc-de-project
+cd nc-de-project
+```
 
 Create a Python virtual environment and install the required packages:
 
