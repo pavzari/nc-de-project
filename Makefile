@@ -6,33 +6,19 @@ include .env
 export
 endif
 
-PROJECT_NAME = nc-de-project
-PYTHON_INTERPRETER = python
 WD=$(shell pwd)
 PYTHONPATH=${WD}
 SHELL := /bin/bash
-PROFILE = default
-PIP:=pip
+PIP := pip
 
 ## Create python interpreter environment.
 create-environment:
-	@echo ">>> About to create environment: $(PROJECT_NAME)..."
-	@echo ">>> check python3 version"
-	( \
-		$(PYTHON_INTERPRETER) --version; \
-	)
-	@echo ">>> Setting up VirtualEnv."
-	( \
-	    $(PIP) install -q virtualenv virtualenvwrapper; \
-	    virtualenv venv --python=$(PYTHON_INTERPRETER); \
-	)
-
-# Define utility variable to help calling Python from the virtual environment
-ACTIVATE_ENV := source venv/bin/activate
-
+	@echo "Setting up venv..."
+	    python -m venv venv
+	
 # Execute python related functionalities from within the project's environment
 define execute_in_env
-	$(ACTIVATE_ENV) && $1
+	source venv/bin/activate && $1
 endef
 
 ## Build the environment requirements
@@ -50,7 +36,7 @@ security-test:
 
 ## Run the flake8 code check
 run-flake:
-	$(call execute_in_env, flake8  ./src/*/*.py ./test/*.py)
+	$(call execute_in_env, flake8 ./src/*/*.py ./test/*.py)
 
 ## Run the unit tests
 unit-test:
@@ -78,7 +64,7 @@ empty-transformed:
 
 ## Empty the data warehouse 
 empty-warehouse:
-	  @PGPASSWORD=${WDB_PASSWORD} psql -h ${WDB_HOST} -p ${WDB_PORT} -d ${WDB_NAME} -U ${WDB_USER} -c "\
+	@PGPASSWORD=${WDB_PASSWORD} psql -h ${WDB_HOST} -p ${WDB_PORT} -d ${WDB_NAME} -U ${WDB_USER} -c "\
 	    DELETE FROM fact_sales_order; \
 	    DELETE FROM dim_currency; \
 	    DELETE FROM dim_date; \
